@@ -5,7 +5,7 @@
 # File Created: Friday, 18th October 2024 5:05:51 pm
 # Author: Josh5 (jsunnex@gmail.com)
 # -----
-# Last Modified: Sunday, 27th October 2024 2:58:19 pm
+# Last Modified: Sunday, 27th October 2024 3:19:16 pm
 # Modified By: Josh5 (jsunnex@gmail.com)
 ###
 set -eu
@@ -14,10 +14,10 @@ set -eu
 # --- Export config
 #
 export docker_version=$(docker --version | grep -oE "[0-9]+\.[0-9]+\.[0-9]+")
-export dind_continer_name="vpn-hls-proxy-swarm-dind"
-export dind_bridge_network_name="vpn-hls-proxy-swarm-dind-net"
+export dind_continer_name="${STACK_NAME:?}-dind"
+export dind_bridge_network_name="${STACK_NAME:?}-dind-net"
 export dind_cache_volume_name="${STACK_NAME:?}-docker-cache"
-export custom_docker_network_name="vpn-hls-proxy-swarm-private-net"
+export custom_docker_network_name="${STACK_NAME:?}-private-net"
 
 export cmd_prefix="docker exec --workdir=/var/lib/docker ${dind_continer_name:?}"
 export docker_cmd="${cmd_prefix:?} docker"
