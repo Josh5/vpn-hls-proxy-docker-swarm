@@ -1,0 +1,167 @@
+# ---------------
+# VPN HLS Proxy Manager
+#
+# ---------------
+# Config (paste into portainer advance env text input):
+#
+#   #@ Placement
+#   #
+#   #-  - PLACEMENT_CONSTRAINT -
+#   #-    Configure a placement constraint to where the container will be run.
+#   #-    Examples:
+#   #-        - node.hostname==<hostname>
+#   #-        - engine.labels.fs-access.<worker-hostname>.mnt==true
+#   #-        - node.role!=manager
+#   PLACEMENT_CONSTRAINT=node.hostname==<hostname>
+#   #@ Resource Limits
+#   #
+#   #-  - DEFAULT_MEMLIMIT -
+#   #-    Container Memory Limits -
+#   DEFAULT_MEMLIMIT=512m
+#   #@ Child Stack Management Config
+#   #
+#   #-  - STACK_NAME -
+#   #     The name of the child stack
+#   STACK_NAME=vpn-hls-proxy
+#   #-  - KEEP_ALIVE -
+#   #     Keep services alive between restarts (will still recreate if the configuration updates)
+#   KEEP_ALIVE=true
+#   #@ VPN Type Selection
+#   #
+#   #-  - VPN_SERVICE_PROVIDER -
+#   #     Select the VPN provider
+#   VPN_SERVICE_PROVIDER=nordvpn
+#   #-  - VPN_TYPE -
+#   #     Select the VPN type. OpenVPN or Wireguard
+#   VPN_TYPE=wireguard
+#   #-  - WIREGUARD_PRIVATE_KEY -
+#   #     Your 32 bytes key in base64 format.
+#   WIREGUARD_PRIVATE_KEY=wG0vv=
+#   #-  - WIREGUARD_MTU -
+#   #     Wireguard MTU
+#   WIREGUARD_MTU=1420
+#   #@ VPN Connection Selection
+#   #
+#   #-  - SERVER_COUNTRIES -
+#   #     Comma separated list of countries
+#   SERVER_COUNTRIES=United Kingdom
+#   #-  - SERVER_REGIONS -
+#   #     Comma separated list of regions
+#   SERVER_REGIONS=
+#   #-  - SERVER_CITIES -
+#   #     Comma separated list of cities
+#   SERVER_CITIES=
+#   #-  - SERVER_HOSTNAMES -
+#   #     Comma separated list of server hostnames
+#   SERVER_HOSTNAMES=
+#   #@ VPN Connection Properties
+#   #
+#   #-  - FREE_ONLY -
+#   #
+#   FREE_ONLY=off
+#   #-  - STREAM_ONLY -
+#   #
+#   STREAM_ONLY=off
+#   #-  - SECURE_CORE_ONLY -
+#   #
+#   SECURE_CORE_ONLY=off
+#   #-  - TOR_ONLY -
+#   #
+#   TOR_ONLY=off
+#   #-  - PORT_FORWARD_ONLY -
+#   #
+#   PORT_FORWARD_ONLY=off
+#   #-  - VPN_PORT_FORWARDING -
+#   #
+#   VPN_PORT_FORWARDING=off
+#   #@ DNS Settings
+#   #
+#   #-  - DNS_ADDRESS -
+#   #     IP address to use as DNS resolver. It defaults to localhost to use the DNS over TLS Unbound server.
+#   DNS_ADDRESS=1.1.1.1
+#   #-  - DOT -
+#   #     Activate DNS over TLS with Unbound. (on/off)
+#   DOT=off
+#   #-  - BLOCK_MALICIOUS -
+#   #     Block malicious hostnames and IPs with Unbound
+#   BLOCK_MALICIOUS=off
+#   #-  - BLOCK_SURVEILLANCE -
+#   #     Block surveillance hostnames and IPs with Unbound
+#   BLOCK_SURVEILLANCE=off
+#   #-  - BLOCK_ADS -
+#   #     Block ads hostnames and IPs with Unbound
+#   BLOCK_ADS=off
+#   #@ HLS Proxy Config
+#   #
+#   #-  - HLS_PROXY_LOG_LEVEL -
+#   #     Set the logging verbosity level.
+#   HLS_PROXY_LOG_LEVEL=1
+#   #-  - HLS_PROXY_HOST_IP -
+#   #     An IP or hostname with an optional port number that can be resolved and is reachable by clients.
+#   HLS_PROXY_HOST_IP=localhost
+#   #-  - HLS_PROXY_PORT -
+#   #     The port number that the server listens on.
+#   HLS_PROXY_PORT=8080
+#
+# ---------------
+---
+networks:
+  vpn-hls-proxy-net:
+    external: false
+
+volumes:
+  stack_config:
+    driver: local
+
+services:
+  # -- MAIN SERVICE --
+  manager:
+    image: ghcr.io/josh5/vpn-hls-proxy-docker-swarm:latest
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - ${PLACEMENT_CONSTRAINT}
+    environment:
+      #@ Child Stack Management Config
+      STACK_NAME: ${STACK_NAME:?}
+      KEEP_ALIVE: ${KEEP_ALIVE:-}
+      DEFAULT_MEMLIMIT: ${DEFAULT_MEMLIMIT:-0}
+      #@ VPN Type Selection
+      VPN_SERVICE_PROVIDER: ${VPN_SERVICE_PROVIDER:?}
+      VPN_TYPE: ${VPN_TYPE:?}
+      WIREGUARD_PRIVATE_KEY: ${WIREGUARD_PRIVATE_KEY:?}
+      WIREGUARD_MTU: ${WIREGUARD_MTU:-1420}
+      #@ VPN Connection Selection
+      SERVER_COUNTRIES: ${SERVER_COUNTRIES:-}
+      SERVER_REGIONS: ${SERVER_REGIONS:-}
+      SERVER_CITIES: ${SERVER_CITIES:-}
+      SERVER_HOSTNAMES: ${SERVER_HOSTNAMES:-}
+      #@ VPN Connection Properties
+      FREE_ONLY: ${FREE_ONLY:-}
+      STREAM_ONLY: ${STREAM_ONLY:-}
+      SECURE_CORE_ONLY: ${SECURE_CORE_ONLY:-}
+      TOR_ONLY: ${TOR_ONLY:-}
+      PORT_FORWARD_ONLY: ${PORT_FORWARD_ONLY:-}
+      VPN_PORT_FORWARDING: ${VPN_PORT_FORWARDING:-}
+      #@ DNS Settings
+      DNS_ADDRESS: ${DNS_ADDRESS:-}
+      DOT: ${DOT:-}
+      BLOCK_MALICIOUS: ${BLOCK_MALICIOUS:-}
+      BLOCK_SURVEILLANCE: ${BLOCK_SURVEILLANCE:-}
+      BLOCK_ADS: ${BLOCK_ADS:-}
+      #@ HLS Proxy Config
+      # Provider
+      HLS_PROXY_LOG_LEVEL: ${HLS_PROXY_LOG_LEVEL:-}
+      HLS_PROXY_HOST_IP: ${HLS_PROXY_HOST_IP:?}
+      HLS_PROXY_PORT: ${HLS_PROXY_PORT:-}
+    volumes:
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+      - type: volume
+        source: stack_config
+        target: /config

@@ -1,0 +1,62 @@
+---
+
+volumes:
+  stack_config:
+    driver: local
+
+services:
+  # -- MAIN SERVICE --
+  manager:
+    image: ghcr.io/josh5/vpn-hls-proxy-docker-swarm:latest
+    build:
+      context: docker
+      dockerfile: Dockerfile
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 60s
+      placement:
+        constraints:
+          - ${PLACEMENT_CONSTRAINT}
+    environment:
+      #@ Child Stack Management Config
+      STACK_NAME: ${STACK_NAME:?}
+      KEEP_ALIVE: ${KEEP_ALIVE:-}
+      DEFAULT_MEMLIMIT: ${DEFAULT_MEMLIMIT:-0}
+      #@ VPN Type Selection
+      VPN_SERVICE_PROVIDER: ${VPN_SERVICE_PROVIDER:?}
+      VPN_TYPE: ${VPN_TYPE:?}
+      WIREGUARD_PRIVATE_KEY: ${WIREGUARD_PRIVATE_KEY:?}
+      WIREGUARD_MTU: ${WIREGUARD_MTU:-1420}
+      #@ VPN Connection Selection
+      SERVER_COUNTRIES: ${SERVER_COUNTRIES:-}
+      SERVER_REGIONS: ${SERVER_REGIONS:-}
+      SERVER_CITIES: ${SERVER_CITIES:-}
+      SERVER_HOSTNAMES: ${SERVER_HOSTNAMES:-}
+      #@ VPN Connection Properties
+      FREE_ONLY: ${FREE_ONLY:-}
+      STREAM_ONLY: ${STREAM_ONLY:-}
+      SECURE_CORE_ONLY: ${SECURE_CORE_ONLY:-}
+      TOR_ONLY: ${TOR_ONLY:-}
+      PORT_FORWARD_ONLY: ${PORT_FORWARD_ONLY:-}
+      VPN_PORT_FORWARDING: ${VPN_PORT_FORWARDING:-}
+      #@ DNS Settings
+      DNS_ADDRESS: ${DNS_ADDRESS:-}
+      DOT: ${DOT:-}
+      BLOCK_MALICIOUS: ${BLOCK_MALICIOUS:-}
+      BLOCK_SURVEILLANCE: ${BLOCK_SURVEILLANCE:-}
+      BLOCK_ADS: ${BLOCK_ADS:-}
+      #@ HLS Proxy Config
+      # Provider
+      HLS_PROXY_LOG_LEVEL: ${HLS_PROXY_LOG_LEVEL:-}
+      HLS_PROXY_HOST_IP: ${HLS_PROXY_HOST_IP:?}
+      HLS_PROXY_PORT: ${HLS_PROXY_PORT:-}
+    volumes:
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+      - type: volume
+        source: stack_config
+        target: /config
