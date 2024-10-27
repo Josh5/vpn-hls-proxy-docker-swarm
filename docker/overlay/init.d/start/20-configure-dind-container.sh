@@ -5,7 +5,7 @@
 # File Created: Monday, 21st October 2024 10:37:05 am
 # Author: Josh5 (jsunnex@gmail.com)
 # -----
-# Last Modified: Sunday, 27th October 2024 2:54:56 pm
+# Last Modified: Sunday, 27th October 2024 3:12:06 pm
 # Modified By: Josh5 (jsunnex@gmail.com)
 ###
 
@@ -29,7 +29,7 @@ fi
 
 print_log info "  - Configure DIND container run aliases..."
 DIND_RUN_CMD="docker run --privileged -d --rm --name ${dind_continer_name:?} \
-    --memory ${DIND_MEMLIMIT:-0} \
+    --memory ${DEFAULT_MEMLIMIT:-0} \
     --env DOCKER_DRIVER=overlay2 \
     --volume ${dind_cache_volume_name:?}:/var/lib/docker \
     --network ${dind_bridge_network_name:?} \
