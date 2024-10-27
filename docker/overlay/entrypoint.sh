@@ -5,7 +5,7 @@
 # File Created: Friday, 18th October 2024 5:05:51 pm
 # Author: Josh5 (jsunnex@gmail.com)
 # -----
-# Last Modified: Sunday, 27th October 2024 3:19:16 pm
+# Last Modified: Sunday, 27th October 2024 3:25:23 pm
 # Modified By: Josh5 (jsunnex@gmail.com)
 ###
 set -eu
@@ -44,11 +44,8 @@ print_log() {
 _term() {
     echo
     echo -e "\e[35m[ Stopping manager service ]\e[0m"
-    if [ "X${log_pid:-}" != "X" ]; then
-        kill ${log_pid:-}
-    fi
     if [ "${KEEP_ALIVE}" = "false" ]; then
-        echo "  - The 'KEEP_ALIVE' env variable is set to ${KEEP_ALIVE:?}. Running all shutdown scripts"
+        echo "  - The 'KEEP_ALIVE' env variable is set to ${KEEP_ALIVE:?}. Running all shutdown scripts."
         # Run all stop scripts
         for stop_script in /init.d/stop/*.sh; do
             if [ -f ${stop_script:?} ]; then
