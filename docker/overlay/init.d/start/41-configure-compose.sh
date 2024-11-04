@@ -5,7 +5,7 @@
 # File Created: Monday, 21st October 2024 10:19:15 pm
 # Author: Josh5 (jsunnex@gmail.com)
 # -----
-# Last Modified: Tuesday, 5th November 2024 12:09:33 am
+# Last Modified: Tuesday, 5th November 2024 12:16:21 am
 # Modified By: Josh5 (jsunnex@gmail.com)
 ###
 
@@ -69,7 +69,7 @@ services:
       - 8.8.4.4
 
   proxy:
-    image: josh5/hls-proxy:latest
+    image: ${HLS_PROXY_DOCKER_IMAGE:-ghcr.io/josh5/warren-bank-hls-proxy:latest}
     restart: unless-stopped
     network_mode: service:gluetun
     env_file: [.env]

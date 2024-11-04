@@ -50,6 +50,7 @@ services:
       BLOCK_ADS: ${BLOCK_ADS:-}
       #@ HLS Proxy Config
       # Provider
+      HLS_PROXY_DOCKER_IMAGE: ghcr.io/josh5/warren-bank-hls-proxy:latest
       HLS_PROXY_LOG_LEVEL: ${HLS_PROXY_LOG_LEVEL:-}
       HLS_PROXY_HOST_IP: ${HLS_PROXY_HOST_IP:-}
       HLS_PROXY_PORT: ${HLS_PROXY_PORT:-}
