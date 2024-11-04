@@ -51,7 +51,7 @@ services:
       #@ HLS Proxy Config
       # Provider
       HLS_PROXY_LOG_LEVEL: ${HLS_PROXY_LOG_LEVEL:-}
-      HLS_PROXY_HOST_IP: ${HLS_PROXY_HOST_IP:?}
+      HLS_PROXY_HOST_IP: ${HLS_PROXY_HOST_IP:-}
       HLS_PROXY_PORT: ${HLS_PROXY_PORT:-}
     volumes:
       - type: bind

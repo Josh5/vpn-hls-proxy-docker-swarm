@@ -5,7 +5,7 @@
 # File Created: Monday, 21st October 2024 10:19:15 pm
 # Author: Josh5 (jsunnex@gmail.com)
 # -----
-# Last Modified: Monday, 4th November 2024 10:51:28 pm
+# Last Modified: Tuesday, 5th November 2024 12:09:33 am
 # Modified By: Josh5 (jsunnex@gmail.com)
 ###
 
@@ -46,7 +46,7 @@ HEALTH_SUCCESS_WAIT_DURATION=30s
 
 #@ HLS Proxy Config
 HLS_PROXY_LOG_LEVEL=${HLS_PROXY_LOG_LEVEL:-1}
-HLS_PROXY_HOST_IP=${HLS_PROXY_HOST_IP:?}
+HLS_PROXY_HOST_IP=${HLS_PROXY_HOST_IP:-}
 HLS_PROXY_PORT=${HLS_PROXY_PORT:-8080}
 EOF
 )
