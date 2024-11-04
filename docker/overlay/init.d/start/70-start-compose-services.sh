@@ -5,11 +5,12 @@
 # File Created: Monday, 21st October 2024 11:40:21 am
 # Author: Josh5 (jsunnex@gmail.com)
 # -----
-# Last Modified: Sunday, 27th October 2024 2:42:32 pm
+# Last Modified: Monday, 4th November 2024 11:53:09 pm
 # Modified By: Josh5 (jsunnex@gmail.com)
 ###
 
 print_log info "Starting services"
+${docker_compose_cmd:?} pull
 if [ "${ALWAYS_FORCE_RECREATE:-}" = "true" ]; then
     print_log info "  - Forcing recreation of whole stack due to 'ALWAYS_FORCE_RECREATE' being set to '${ALWAYS_FORCE_RECREATE:-}'."
     ${docker_compose_cmd:?} up --detach --remove-orphans --force-recreate
