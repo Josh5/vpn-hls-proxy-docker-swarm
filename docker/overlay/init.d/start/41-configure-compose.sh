@@ -5,7 +5,7 @@
 # File Created: Monday, 21st October 2024 10:19:15 pm
 # Author: Josh5 (jsunnex@gmail.com)
 # -----
-# Last Modified: Sunday, 27th October 2024 2:54:38 pm
+# Last Modified: Monday, 4th November 2024 10:51:28 pm
 # Modified By: Josh5 (jsunnex@gmail.com)
 ###
 
@@ -69,7 +69,7 @@ services:
       - 8.8.4.4
 
   proxy:
-    image: ghcr.io/josh5/hls-proxy:latest
+    image: josh5/hls-proxy:latest
     restart: unless-stopped
     network_mode: service:gluetun
     env_file: [.env]

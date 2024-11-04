@@ -5,7 +5,7 @@
 Deploying a VPN network on a Swarm is annoying due to restrictions in the permissions available to a Swarm Stack.
 Running a WireGuard VPN on a Swarm Stack can be a bunch of hoops to jump through. This project aims to simplify that for combining a VPN connection along with an HLS proxy.
 
-This project will use [gluetun](https://github.com/qdm12/gluetun) for the VPN configuration and [@warren-bank/hls-proxy](https://www.npmjs.com/package/@warren-bank/hls-proxy) for an HLS proxy.
+This project will use [gluetun](https://github.com/qdm12/gluetun) for the VPN configuration and [hls-proxy](https://github.com/Josh5/HLS-Proxy) for an HLS proxy.
 
 ## Installation
 
@@ -28,7 +28,7 @@ From the root of this project, run these commands:
 3) Modify the `.env` file with whatever config options you need to modify
 
     Refer to the Docs:
-    - [@warren-bank/hls-proxy](https://www.npmjs.com/package/@warren-bank/hls-proxy) (HLS Proxy Container)
+    - [hls-proxy](https://github.com/Josh5/HLS-Proxy) (HLS Proxy Container)
     - [gluetun](https://github.com/qdm12/gluetun-wiki) (VPN Container)
 
     Only some options are configurable. Open an issue or PR if you need any additional functionality.
