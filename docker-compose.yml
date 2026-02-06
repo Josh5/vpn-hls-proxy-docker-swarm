@@ -24,7 +24,10 @@ services:
       #@ Child Stack Management Config
       STACK_NAME: ${STACK_NAME:?}
       KEEP_ALIVE: ${KEEP_ALIVE:-}
-      DEFAULT_MEMLIMIT: ${DEFAULT_MEMLIMIT:-0}
+      DIND_CPU_SHARES: ${DIND_CPU_SHARES:-}
+      DIND_MTU: ${DIND_MTU:-}
+      DIND_CPU_PERCENT: ${DIND_CPU_PERCENT:-}
+      DIND_MEMLIMIT: ${DIND_MEMLIMIT:-0}
       #@ VPN Type Selection
       VPN_SERVICE_PROVIDER: ${VPN_SERVICE_PROVIDER:?}
       VPN_TYPE: ${VPN_TYPE:?}

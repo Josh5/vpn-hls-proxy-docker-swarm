@@ -27,15 +27,48 @@ if ! docker volume inspect "${dind_cache_volume_name:?}" >/dev/null 2>&1; then
     docker volume create "${dind_cache_volume_name:?}"
 fi
 
+print_log info "  - Set DIND daemon args..."
+dind_daemon_args=""
+dind_daemon_args="${dind_daemon_args:-} --ipv6=false"
+if [ -n "${DIND_MTU:-}" ]; then
+    dind_daemon_args="${dind_daemon_args:-} --mtu=${DIND_MTU:?}"
+fi
+
+print_log info "  - Calculate DIND container CPU limits..."
+if [ -n "${DIND_CPU_PERCENT:-}" ]; then
+    if [[ "${DIND_CPU_PERCENT:?}" =~ ^[0-9]+$ ]] && [ "${DIND_CPU_PERCENT:?}" -ge 1 ] && [ "${DIND_CPU_PERCENT:?}" -le 100 ]; then
+        print_log info "    - The DIND_CPU_PERCENT variable is a valid number between 1 and 100."
+        if [ "${DIND_CPU_PERCENT:?}" = "100" ]; then
+            # 100 is not actually a valid number. Lets just drop that down a tad
+            DIND_CPU_PERCENT=99
+        fi
+    else
+        print_log info "    - The DIND_CPU_PERCENT variable is not a valid number between 1 and 100. Defaulting to 75."
+        DIND_CPU_PERCENT=75
+    fi
+else
+    print_log info "    - The DIND_CPU_PERCENT variable has not been provided. Defaulting to 75."
+    DIND_CPU_PERCENT=75
+fi
+TOTAL_CPUS=$(nproc)
+print_log info "    - Calculating CPU Quota from ${DIND_CPU_PERCENT:?}% of a total ${TOTAL_CPUS:?} CPUs"
+CPU_PERIOD=100000
+CPU_QUOTA=$(echo "${CPU_PERIOD:?} * $(nproc) * 0.${DIND_CPU_PERCENT:?}" | bc)
+CPU_QUOTA=${CPU_QUOTA%.*}
+print_log info "    - CPU Quota: ${CPU_QUOTA:?}/${CPU_PERIOD:?}"
+
 print_log info "  - Configure DIND container run aliases..."
 DIND_RUN_CMD="docker run --privileged -d --rm --name ${dind_continer_name:?} \
-    --memory ${DEFAULT_MEMLIMIT:-0} \
+    --memory ${DIND_MEMLIMIT:-0} \
+    --cpu-shares ${DIND_CPU_SHARES:-512} \
+    --cpu-period ${CPU_PERIOD:?} \
+    --cpu-quota ${CPU_QUOTA:?} \
     --env DOCKER_DRIVER=overlay2 \
     --volume ${dind_cache_volume_name:?}:/var/lib/docker \
     --network ${dind_bridge_network_name:?} \
     --network-alias ${dind_continer_name:?} \
     --publish ${HLS_PROXY_PORT:-8080}:${HLS_PROXY_PORT:-8080} \
-    docker:${docker_version:?}-dind"
+    docker:${docker_version:?}-dind ${dind_daemon_args:-}"
 
 print_log info "  - Writing DIND container config to env file"
 echo "" >${manager_config_path:?}/new-dind-run-config.env

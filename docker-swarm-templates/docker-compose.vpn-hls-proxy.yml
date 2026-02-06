@@ -21,9 +21,23 @@
 #   #-        - node.role!=manager
 #   PLACEMENT_CONSTRAINT=node.hostname==<hostname>
 #   #@ Resource Limits
-#   #-  - DEFAULT_MEMLIMIT -
-#   #-    Container Memory Limits -
-#   DEFAULT_MEMLIMIT=512m
+#   #-  - DIND_CPU_SHARES -
+#   #     Sets a CPU shares limit on the Wazuh DIND container. Nested services will not be able to exceed this value.
+#   #     Set this to 1024 to apply system defaults. If left empty, a shares value of 512 will be applied.
+#   DIND_CPU_SHARES=512
+#   #-  - DIND_MTU -
+#   #     Optional MTU for the DIND daemon (useful for overlay/VPN constraints).
+#   DIND_MTU=
+#   #-  - DIND_CPU_PERCENT -
+#   #     Impose a CPU CFS quota on the container calculated by the number of CPUs available acting as the effective CPU ceiling.
+#   #     Valid values should within the range of 1-100. If left empty, value of 75 will be applied.
+#   DIND_CPU_PERCENT=75
+#   #-  - DIND_MEMLIMIT -
+#   #     Sets a memory limit on the Wazuh DIND container. Nested services will not be able to exceed this value.
+#   #     Set this to 0 to apply no memory limit. Use a suffix of b, k, m, g, to indicate bytes, kilobytes, megabytes, or gigabytes.
+#   DIND_MEMLIMIT=0
+#   #-  - CUSTOM_LOG_DRIVER -
+#   #     Configure the docker stack to use a custom logging driver. Options "local", "json-file", "fluentd"
 #   #@ Child Stack Management Config
 #   #-  - STACK_NAME -
 #   #     The name of the child stack
@@ -135,7 +149,10 @@ services:
       #@ Child Stack Management Config
       STACK_NAME: ${STACK_NAME:?}
       KEEP_ALIVE: ${KEEP_ALIVE:-}
-      DEFAULT_MEMLIMIT: ${DEFAULT_MEMLIMIT:-0}
+      DIND_CPU_SHARES: ${DIND_CPU_SHARES:-}
+      DIND_MTU: ${DIND_MTU:-}
+      DIND_CPU_PERCENT: ${DIND_CPU_PERCENT:-}
+      DIND_MEMLIMIT: ${DIND_MEMLIMIT:-0}
       #@ VPN Type Selection
       VPN_SERVICE_PROVIDER: ${VPN_SERVICE_PROVIDER:?}
       VPN_TYPE: ${VPN_TYPE:?}
