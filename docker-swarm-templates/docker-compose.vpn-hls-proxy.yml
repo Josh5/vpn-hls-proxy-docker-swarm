@@ -87,6 +87,9 @@
 #   #-    Block ads hostnames and IPs with Unbound
 #   BLOCK_ADS=off
 #   #@ HLS Proxy Config
+#   #-  - HLS_PROXY_DOCKER_IMAGE -
+#   #-    Docker image for the HLS Proxy container.
+#   HLS_PROXY_DOCKER_IMAGE=ghcr.io/josh5/warren-bank-hls-proxy:latest
 #   #-  - HLS_PROXY_LOG_LEVEL -
 #   #-    Set the logging verbosity level.
 #   HLS_PROXY_LOG_LEVEL=1
