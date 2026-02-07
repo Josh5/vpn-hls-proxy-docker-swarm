@@ -95,6 +95,12 @@ services:
     restart: unless-stopped
     network_mode: service:gluetun
     env_file: [proxy.env]
+
+  ipcheck:
+    image: curlimages/curl:latest
+    restart: unless-stopped
+    network_mode: service:gluetun
+    entrypoint: ["/bin/sh", "-c", "tail -f /dev/null"]
 EOF
 )
 docker exec -i ${dind_continer_name:?} sh -c 'echo "'"$COMPOSE_FILE"'" > /var/lib/docker/docker-compose.yml'

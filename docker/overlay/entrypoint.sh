@@ -72,7 +72,7 @@ _fetch_manager_ip() {
 _fetch_proxy_ip() {
     local url ip
     for url in "${_ip_sources[@]}"; do
-        ip=$(${docker_compose_cmd:?} exec -T proxy sh -c "curl -4 -fsS --max-time 10 \"${url}\"" 2>/dev/null || true)
+        ip=$(${docker_compose_cmd:?} exec -T ipcheck sh -c "curl -4 -fsS --max-time 10 \"${url}\"" 2>/dev/null || true)
         ip=$(echo "${ip}" | tr -d ' \r\n')
         if _is_ipv4 "${ip}"; then
             echo "${ip}"
