@@ -5,8 +5,8 @@
 # File Created: Friday, 18th October 2024 5:05:51 pm
 # Author: Josh5 (jsunnex@gmail.com)
 # -----
-# Last Modified: Sunday, 27th October 2024 3:25:23 pm
-# Modified By: Josh5 (jsunnex@gmail.com)
+# Last Modified: Saturday, 7th February 2026 5:27:30 pm
+# Modified By: Josh.5 (jsunnex@gmail.com)
 ###
 set -eu
 
@@ -50,7 +50,7 @@ _ip_sources=(
 _is_ipv4() {
     local ip="${1:-}"
     [[ "${ip}" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] || return 1
-    IFS='.' read -r o1 o2 o3 o4 <<< "${ip}"
+    IFS='.' read -r o1 o2 o3 o4 <<<"${ip}"
     for o in "${o1}" "${o2}" "${o3}" "${o4}"; do
         [ "${o}" -le 255 ] || return 1
     done
@@ -175,13 +175,12 @@ _stack_monitor() {
         done
 
         if [ -z "${host_ip:-}" ] || [ $((now_ts - host_ip_last_refresh)) -ge "${VPN_HEALTH_HOST_IP_REFRESH:?}" ]; then
-            print_log info "Checking host external IP..."
+            print_log info "Fetching host external IP..."
             host_ip=$(_fetch_manager_ip || true)
             if [ -n "${host_ip:-}" ]; then
-                print_log info "  - Host IP: ${host_ip:-}"
                 host_ip_last_refresh=${now_ts:?}
             else
-                print_log info "  - Unable to fetch host IP. Will retry."
+                print_log info "  - Unable to fetch host IP."
             fi
         fi
 
@@ -194,20 +193,25 @@ _stack_monitor() {
         fi
 
         print_log info "Checking VPN external IP..."
-        vpn_ip=$(_fetch_proxy_ip || true)
-        if [ -z "${vpn_ip:-}" ]; then
-            print_log info "  - Unable to fetch VPN IP from ipcheck container. Skipping enforcement this cycle."
-            debug_output=$(${docker_compose_cmd:?} exec -T ipcheck sh -c "curl -4 -sS --max-time 10 \"${_ip_sources[0]}\"" 2>&1 || true)
-            if [ -n "${debug_output:-}" ]; then
-                print_log info "  - ipcheck debug output: ${debug_output:-}"
+        if [ -n "${host_ip:-}" ]; then
+            print_log info "  - Host IP: ${host_ip:-}"
+            vpn_ip=$(_fetch_proxy_ip || true)
+            if [ -z "${vpn_ip:-}" ]; then
+                print_log info "  - Unable to fetch VPN IP from ipcheck container. Skipping enforcement this cycle."
+                debug_output=$(${docker_compose_cmd:?} exec -T ipcheck sh -c "curl -4 -sS --max-time 10 \"${_ip_sources[0]}\"" 2>&1 || true)
+                if [ -n "${debug_output:-}" ]; then
+                    print_log info "  - ipcheck debug output: ${debug_output:-}"
+                fi
+                vpn_fail_count=0
+            elif [ -n "${host_ip:-}" ] && [ "${vpn_ip:-}" = "${host_ip:-}" ]; then
+                print_log error "  - VPN IP matches host IP (${vpn_ip:-}). Leak suspected."
+                vpn_fail_count=$((vpn_fail_count + 1))
+            else
+                print_log info "  - VPN IP: ${vpn_ip:-}"
+                vpn_fail_count=0
             fi
-            vpn_fail_count=0
-        elif [ -n "${host_ip:-}" ] && [ "${vpn_ip:-}" = "${host_ip:-}" ]; then
-            print_log error "  - VPN IP matches host IP (${vpn_ip:-}). Leak suspected."
-            vpn_fail_count=$((vpn_fail_count + 1))
         else
-            print_log info "  - VPN IP: ${vpn_ip:-}"
-            vpn_fail_count=0
+            print_log info "  - The host IP is not known. VPN external IP check option is not available."
         fi
 
         if [ "${vpn_fail_count:?}" -ge "${VPN_HEALTH_MAX_FAILS:?}" ]; then
@@ -221,7 +225,7 @@ _stack_monitor() {
                 ${docker_compose_cmd:?} down --remove-orphans || true
                 ${docker_compose_cmd:?} up --detach --remove-orphans || true
                 vpn_fail_count=0
-                vpn_health_next_check_ts=$(( $(date +%s) + VPN_HEALTH_STARTUP_GRACE ))
+                vpn_health_next_check_ts=$(($(date +%s) + VPN_HEALTH_STARTUP_GRACE))
                 ;;
             *)
                 print_log error "Unknown VPN_HEALTH_FAIL_ACTION '${VPN_HEALTH_FAIL_ACTION:?}'. Exiting."
@@ -238,7 +242,7 @@ _stack_monitor() {
 sleep 10 &
 wait $!
 
-${docker_compose_cmd:?}  logs -f &
+${docker_compose_cmd:?} logs -f &
 log_pid=$?
 
 print_log info "Waiting 10s before starting stack monitor..."
