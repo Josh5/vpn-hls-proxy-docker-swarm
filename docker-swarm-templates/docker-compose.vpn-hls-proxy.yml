@@ -52,6 +52,12 @@
 #   #-  - VPN_TYPE -
 #   #     Select the VPN type. OpenVPN or Wireguard
 #   VPN_TYPE=wireguard
+#   #-  - OPENVPN_ENDPOINT_PORT -
+#   #-    Custom OpenVPN server endpoint port to use
+#   #-    For TCP: 443, 5995 or 8443
+#   #-    For UDP: 80, 443, 1194, 4569, 5060
+#   #-    Defaults are 1194 for UDP and 443 for TCP
+#   OPENVPN_ENDPOINT_PORT=
 #   #-  - WIREGUARD_PRIVATE_KEY -
 #   #     Your 32 bytes key in base64 format.
 #   WIREGUARD_PRIVATE_KEY=wG0vv=
@@ -69,21 +75,45 @@
 #   #     Comma separated list of cities
 #   SERVER_CITIES=
 #   #-  - SERVER_HOSTNAMES -
-#   #     Comma separated list of server hostnames
+#   #     Comma separated list of server hostnames. Beware this is the narrowest filter, so if you set this to a single hostname and this hostname disappears from the Gluetun servers data due to an update, your container will no longer work until this filter is changed. I would suggest avoiding it unless you know this reliability risk.
 #   SERVER_HOSTNAMES=
-#   #@ VPN Connection Properties
+#   #@ Provider-Specific Options
+#   #-    Provider-specific environment variables are documented here:
+#   #-    https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers
+#   #-    Add any provider-specific env vars in Portainer (Advanced mode).
 #   #-  - FREE_ONLY -
+#   #-    Filter only free tier servers by setting it to on. It defaults to off.
 #   FREE_ONLY=off
 #   #-  - STREAM_ONLY -
+#   #-    Filter only streaming servers by setting it to on. It defaults to off.
 #   STREAM_ONLY=off
 #   #-  - SECURE_CORE_ONLY -
+#   #-    Filter only secure core servers by setting it to on. It defaults to off.
 #   SECURE_CORE_ONLY=off
 #   #-  - TOR_ONLY -
+#   #-    Filter only TOR servers by setting it to on. It defaults to off.
 #   TOR_ONLY=off
 #   #-  - PORT_FORWARD_ONLY -
+#   #-    Filter only port-forwarding enabled (aka p2p) servers by setting it to on. It defaults to off.
 #   PORT_FORWARD_ONLY=off
 #   #-  - VPN_PORT_FORWARDING -
+#   #-    defaults to off and can be set to onto enable port forwarding on the VPN server.
 #   VPN_PORT_FORWARDING=off
+#   #-  - FIREWALL_VPN_INPUT_PORTS -
+#   #-    Comma separated list of input ports to allow through the VPN firewall.
+#   FIREWALL_VPN_INPUT_PORTS=
+#   #-  - ISP -
+#   #-    Provider-specific ISP filter (see provider docs for supported values).
+#   ISP=
+#   #-  - OWNED_ONLY -
+#   #-    Provider-specific server filter for owned-only servers (see provider docs).
+#   OWNED_ONLY=
+#   #-  - PREMIUM_ONLY -
+#   #-    Provider-specific server filter for premium-only servers (see provider docs).
+#   PREMIUM_ONLY=
+#   #-  - PRIVATE_INTERNET_ACCESS_OPENVPN_ENCRYPTION_PRESET -
+#   #-    PIA OpenVPN encryption preset (see provider docs).
+#   PRIVATE_INTERNET_ACCESS_OPENVPN_ENCRYPTION_PRESET=
 #   #@ DNS Settings
 #   #-  - DNS_ADDRESS -
 #   #-    IP address to use as DNS resolver. It defaults to localhost to use the DNS over TLS Unbound server.
@@ -169,14 +199,31 @@ services:
       #@ VPN Type Selection
       VPN_SERVICE_PROVIDER: ${VPN_SERVICE_PROVIDER:?}
       VPN_TYPE: ${VPN_TYPE:?}
-      WIREGUARD_PRIVATE_KEY: ${WIREGUARD_PRIVATE_KEY:?}
+      OPENVPN_USER: ${OPENVPN_USER:-}
+      OPENVPN_PASSWORD: ${OPENVPN_PASSWORD:-}
+      OPENVPN_ENDPOINT_PORT: ${OPENVPN_ENDPOINT_PORT:-}
+      OPENVPN_CUSTOM_CONFIG: ${OPENVPN_CUSTOM_CONFIG:-}
+      OPENVPN_KEY_PASSPHRASE: ${OPENVPN_KEY_PASSPHRASE:-}
+      WIREGUARD_PRIVATE_KEY: ${WIREGUARD_PRIVATE_KEY:-}
+      WIREGUARD_PRESHARED_KEY: ${WIREGUARD_PRESHARED_KEY:-}
+      WIREGUARD_ADDRESSES: ${WIREGUARD_ADDRESSES:-}
+      WIREGUARD_ENDPOINT_IP: ${WIREGUARD_ENDPOINT_IP:-}
+      WIREGUARD_ENDPOINT_PORT: ${WIREGUARD_ENDPOINT_PORT:-}
+      WIREGUARD_PUBLIC_KEY: ${WIREGUARD_PUBLIC_KEY:-}
       WIREGUARD_MTU: ${WIREGUARD_MTU:-1420}
-      #@ VPN Connection Selection
+      WIREGUARD_PERSISTENT_KEEPALIVE_INTERVAL: ${WIREGUARD_PERSISTENT_KEEPALIVE_INTERVAL:-}
+      #@ Provider Config
       SERVER_COUNTRIES: ${SERVER_COUNTRIES:-}
       SERVER_REGIONS: ${SERVER_REGIONS:-}
       SERVER_CITIES: ${SERVER_CITIES:-}
       SERVER_HOSTNAMES: ${SERVER_HOSTNAMES:-}
-      #@ VPN Connection Properties
+      SERVER_CATEGORIES: ${SERVER_CATEGORIES:-}
+      SERVER_NAMES: ${SERVER_NAMES:-}
+      FIREWALL_VPN_INPUT_PORTS: ${FIREWALL_VPN_INPUT_PORTS:-}
+      ISP: ${ISP:-}
+      OWNED_ONLY: ${OWNED_ONLY:-}
+      PREMIUM_ONLY: ${PREMIUM_ONLY:-}
+      PRIVATE_INTERNET_ACCESS_OPENVPN_ENCRYPTION_PRESET: ${PRIVATE_INTERNET_ACCESS_OPENVPN_ENCRYPTION_PRESET:-}
       FREE_ONLY: ${FREE_ONLY:-}
       STREAM_ONLY: ${STREAM_ONLY:-}
       SECURE_CORE_ONLY: ${SECURE_CORE_ONLY:-}

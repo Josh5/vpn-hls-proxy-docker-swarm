@@ -14,25 +14,6 @@ print_log info "Create custom docker-compose.yml file"
 echo "  - Create /var/lib/docker/.env file."
 ENV_FILE=$(
     cat <<EOF
-#@ VPN Config
-# Provider
-VPN_SERVICE_PROVIDER=${VPN_SERVICE_PROVIDER:?}
-VPN_TYPE=${VPN_TYPE:?}
-WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY:?}
-WIREGUARD_MTU=${WIREGUARD_MTU:-1420}
-WIREGUARD_PERSISTENT_KEEPALIVE_INTERVAL=25s
-# Connection Selection
-SERVER_COUNTRIES=${SERVER_COUNTRIES:-}
-SERVER_REGIONS=${SERVER_REGIONS:-}
-SERVER_CITIES=${SERVER_CITIES:-}
-SERVER_HOSTNAMES=${SERVER_HOSTNAMES:-}
-# Connection Properties
-FREE_ONLY=${FREE_ONLY:-}
-STREAM_ONLY=${STREAM_ONLY:-}
-SECURE_CORE_ONLY=${SECURE_CORE_ONLY:-}
-TOR_ONLY=${TOR_ONLY:-}
-PORT_FORWARD_ONLY=${PORT_FORWARD_ONLY:-}
-VPN_PORT_FORWARDING=${VPN_PORT_FORWARDING:-}
 # DNS Settings
 DNS_ADDRESS=${DNS_ADDRESS:-}
 DOT=${DOT:-off}
@@ -51,6 +32,32 @@ HLS_PROXY_PORT=${HLS_PROXY_PORT:-8080}
 EOF
 )
 docker exec -i ${dind_continer_name:?} sh -c 'echo "'"$ENV_FILE"'" > /var/lib/docker/.env'
+
+echo "  - Append provider-specific env vars to /var/lib/docker/.env"
+EXTRA_ENV=$(
+    env | while IFS='=' read -r key value; do
+        case "${key}" in
+        DIND_*|VPN_HEALTH_*|HLS_PROXY_*|DOCKER_*|KEEP_ALIVE|STACK_NAME|PLACEMENT_CONSTRAINT)
+            continue
+            ;;
+        PATH|HOME|HOSTNAME|SHLVL|PWD|TERM|LANG|USER|LOGNAME|SHELL|TZ|_)
+            continue
+            ;;
+        LC_*)
+            continue
+            ;;
+        esac
+        if [ -z "${value:-}" ]; then
+            continue
+        fi
+        if [[ "${key}" =~ ^[A-Z0-9_]+$ ]]; then
+            echo "${key}=${value}"
+        fi
+    done
+)
+if [ -n "${EXTRA_ENV:-}" ]; then
+    docker exec -i ${dind_continer_name:?} sh -c 'cat >> /var/lib/docker/.env' <<< "${EXTRA_ENV}"
+fi
 
 echo "  - Create /var/lib/docker/docker-compose.yml file."
 COMPOSE_FILE=$(
