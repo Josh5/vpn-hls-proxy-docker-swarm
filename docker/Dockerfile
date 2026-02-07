@@ -11,6 +11,7 @@ RUN \
             bc \
             cgroup-tools \
             coreutils \
+            curl \
             gettext \
             wget \
         && wget -q "https://github.com/mikefarah/yq/releases/download/v4.43.1/yq_linux_amd64" \

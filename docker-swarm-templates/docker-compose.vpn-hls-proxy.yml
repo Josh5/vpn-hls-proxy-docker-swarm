@@ -100,6 +100,19 @@
 #   #-  - BLOCK_ADS -
 #   #-    Block ads hostnames and IPs with Unbound
 #   BLOCK_ADS=off
+#   #@ VPN Health Enforcement
+#   #-  - VPN_HEALTH_STARTUP_GRACE -
+#   #-    Seconds to wait before enforcing VPN health checks.
+#   VPN_HEALTH_STARTUP_GRACE=60
+#   #-  - VPN_HEALTH_INTERVAL -
+#   #-    Seconds between VPN health checks.
+#   VPN_HEALTH_INTERVAL=60
+#   #-  - VPN_HEALTH_MAX_FAILS -
+#   #-    Consecutive failures before enforcement action.
+#   VPN_HEALTH_MAX_FAILS=3
+#   #-  - VPN_HEALTH_FAIL_ACTION -
+#   #-    Action on failure: "restart-stack" or "exit".
+#   VPN_HEALTH_FAIL_ACTION=restart-stack
 #   #@ HLS Proxy Config
 #   #-  - HLS_PROXY_DOCKER_IMAGE -
 #   #-    Docker image for the HLS Proxy container.
@@ -176,6 +189,11 @@ services:
       BLOCK_MALICIOUS: ${BLOCK_MALICIOUS:-}
       BLOCK_SURVEILLANCE: ${BLOCK_SURVEILLANCE:-}
       BLOCK_ADS: ${BLOCK_ADS:-}
+      #@ VPN Healtcheck config
+      VPN_HEALTH_STARTUP_GRACE: ${VPN_HEALTH_STARTUP_GRACE:-}
+      VPN_HEALTH_INTERVAL: ${VPN_HEALTH_INTERVAL:-}
+      VPN_HEALTH_MAX_FAILS: ${VPN_HEALTH_MAX_FAILS:-}
+      VPN_HEALTH_FAIL_ACTION: ${VPN_HEALTH_FAIL_ACTION:-}
       #@ HLS Proxy Config
       # Provider
       HLS_PROXY_DOCKER_IMAGE: ${HLS_PROXY_DOCKER_IMAGE:-ghcr.io/josh5/warren-bank-hls-proxy:latest}
