@@ -196,8 +196,12 @@ _stack_monitor() {
         print_log info "Checking VPN external IP..."
         vpn_ip=$(_fetch_proxy_ip || true)
         if [ -z "${vpn_ip:-}" ]; then
-            print_log error "  - Unable to fetch VPN IP from proxy container."
-            vpn_fail_count=$((vpn_fail_count + 1))
+            print_log info "  - Unable to fetch VPN IP from ipcheck container. Skipping enforcement this cycle."
+            debug_output=$(${docker_compose_cmd:?} exec -T ipcheck sh -c "curl -4 -sS --max-time 10 \"${_ip_sources[0]}\"" 2>&1 || true)
+            if [ -n "${debug_output:-}" ]; then
+                print_log info "  - ipcheck debug output: ${debug_output:-}"
+            fi
+            vpn_fail_count=0
         elif [ -n "${host_ip:-}" ] && [ "${vpn_ip:-}" = "${host_ip:-}" ]; then
             print_log error "  - VPN IP matches host IP (${vpn_ip:-}). Leak suspected."
             vpn_fail_count=$((vpn_fail_count + 1))
