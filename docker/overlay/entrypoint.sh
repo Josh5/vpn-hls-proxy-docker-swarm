@@ -237,4 +237,8 @@ wait $!
 ${docker_compose_cmd:?}  logs -f &
 log_pid=$?
 
+print_log info "Waiting 10s before starting stack monitor..."
+sleep 10 &
+wait $!
+
 _stack_monitor

@@ -5,14 +5,14 @@
 # File Created: Monday, 21st October 2024 10:19:15 pm
 # Author: Josh5 (jsunnex@gmail.com)
 # -----
-# Last Modified: Tuesday, 5th November 2024 12:16:21 am
-# Modified By: Josh5 (jsunnex@gmail.com)
+# Last Modified: Saturday, 7th February 2026 2:29:53 pm
+# Modified By: Josh.5 (jsunnex@gmail.com)
 ###
 
 print_log info "Create custom docker-compose.yml file"
 
-echo "  - Create /var/lib/docker/.env file."
-ENV_FILE=$(
+echo "  - Create /var/lib/docker/gluetun.env file."
+GLUETUN_ENV_FILE=$(
     cat <<EOF
 #@ VPN Config
 # Provider
@@ -61,10 +61,18 @@ HEALTH_VPN_DURATION_ADDITION=5s
 HEALTH_SUCCESS_WAIT_DURATION=30s
 EOF
 )
-docker exec -i ${dind_continer_name:?} sh -c 'echo "'"$ENV_FILE"'" > /var/lib/docker/.env'
+docker exec -i ${dind_continer_name:?} sh -c 'echo "'"$GLUETUN_ENV_FILE"'" > /var/lib/docker/gluetun.env'
 
-print_log info "  - Generated /var/lib/docker/.env"
-docker exec -i ${dind_continer_name:?} sh -c "cat /var/lib/docker/.env"
+echo "  - Create /var/lib/docker/proxy.env file."
+PROXY_ENV_FILE=$(
+    cat <<EOF
+#@ HLS Proxy Config
+HLS_PROXY_LOG_LEVEL=${HLS_PROXY_LOG_LEVEL:-1}
+HLS_PROXY_HOST_IP=${HLS_PROXY_HOST_IP:?}
+HLS_PROXY_PORT=${HLS_PROXY_PORT:-8080}
+EOF
+)
+docker exec -i ${dind_continer_name:?} sh -c 'echo "'"$PROXY_ENV_FILE"'" > /var/lib/docker/proxy.env'
 
 echo "  - Create /var/lib/docker/docker-compose.yml file."
 COMPOSE_FILE=$(
@@ -75,7 +83,7 @@ services:
     restart: unless-stopped
     cap_add:
       - NET_ADMIN
-    env_file: [.env]
+    env_file: [gluetun.env]
     ports:
       - '${HLS_PROXY_PORT}:${HLS_PROXY_PORT}'
     dns:
@@ -86,7 +94,7 @@ services:
     image: ${HLS_PROXY_DOCKER_IMAGE:-ghcr.io/josh5/warren-bank-hls-proxy:latest}
     restart: unless-stopped
     network_mode: service:gluetun
-    env_file: [.env]
+    env_file: [proxy.env]
 EOF
 )
 docker exec -i ${dind_continer_name:?} sh -c 'echo "'"$COMPOSE_FILE"'" > /var/lib/docker/docker-compose.yml'
