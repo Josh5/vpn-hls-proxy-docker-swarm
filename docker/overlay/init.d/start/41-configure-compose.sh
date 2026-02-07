@@ -59,6 +59,9 @@ if [ -n "${EXTRA_ENV:-}" ]; then
     docker exec -i ${dind_continer_name:?} sh -c 'cat >> /var/lib/docker/.env' <<< "${EXTRA_ENV}"
 fi
 
+print_log info "  - Generated /var/lib/docker/.env"
+docker exec -i ${dind_continer_name:?} sh -c "cat /var/lib/docker/.env"
+
 echo "  - Create /var/lib/docker/docker-compose.yml file."
 COMPOSE_FILE=$(
     cat <<EOF
