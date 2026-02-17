@@ -5,7 +5,7 @@
 # File Created: Monday, 21st October 2024 10:19:15 pm
 # Author: Josh5 (jsunnex@gmail.com)
 # -----
-# Last Modified: Saturday, 7th February 2026 2:29:53 pm
+# Last Modified: Tuesday, 17th February 2026 2:51:08 pm
 # Modified By: Josh.5 (jsunnex@gmail.com)
 ###
 
@@ -70,8 +70,13 @@ PROXY_ENV_FILE=$(
 HLS_PROXY_LOG_LEVEL=${HLS_PROXY_LOG_LEVEL:-1}
 HLS_PROXY_HOST_IP=${HLS_PROXY_HOST_IP:?}
 HLS_PROXY_PORT=${HLS_PROXY_PORT:-8080}
+HLS_PROXY_PREFIX=${HLS_PROXY_PREFIX:-}
 EOF
 )
+if [ "${HLS_PROXY_LOG_LEVEL:-1}" -gt 1 ]; then
+    PROXY_ENV_FILE="${PROXY_ENV_FILE}
+ENABLE_DEBUGGING=true"
+fi
 docker exec -i ${dind_continer_name:?} sh -c 'echo "'"$PROXY_ENV_FILE"'" > /var/lib/docker/proxy.env'
 
 echo "  - Create /var/lib/docker/docker-compose.yml file."
